@@ -1,32 +1,50 @@
 # importing relevant libraries
-
-# Analysis libraries
-import subprocess
-
-# Install pandas using pip
-subprocess.check_call(["pip", "install", "pandas"])
-
-# Now you can import pandas
 import pandas as pd
 
 
-class data_loading:
-    def __init__(self, file_path):
-        self.file_path = file_path
+class Data_Loader:
+    def __init__(self):
+        pass
 
-    def load_data(self):
-        df = pd.read_csv(self.file_path)
-        
-        #shape of the dataframe
-        print("\nShape of the dataframe:")
-        print(df.shape)
-        
-        #column datatypes
-        print("\nColumn datatypes:")
-        print(df.dtypes)
-        
-        #describe the dataframe
-        print("\nDescription of the dataframe:")
-        print(df.describe())
+    def load_data(self, file_path):
+        # Loading the Dataset
+        df = pd.read_csv(file_path)
         
         return df
+
+class Data_Informer(Data_Loader):
+    def __init__(self):
+        super().__init__()
+
+    def print_info(self, df):
+        # Shape of the dataframe
+        print("\nShape of the dataset:")
+        print(df.shape)
+        
+        # Column data Information
+        print("\nInformation about the Dataset:")
+        print(df.info())
+        
+        #Data Types
+        data_types = df.dtypes
+        print("\nColumns and their data types:")
+        for column, dtype in data_types.items():
+            print(f"{column}: {dtype}")
+    
+class Data_cleaning:
+    def __init__(self):
+        pass
+    
+class Analysis:
+    def __init__(self):
+        pass
+    
+class Modeling:
+    def __init__(self):
+        pass
+    
+class Evaluation:
+    def __init__(self):
+        pass
+        
+   
