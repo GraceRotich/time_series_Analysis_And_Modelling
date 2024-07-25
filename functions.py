@@ -130,7 +130,7 @@ class TimeSeriesAnalyzer:
             plt.ylim(ylim)
         plt.xlabel('Date')
         plt.ylabel('Value')
-        plt.title(f'Time Series of {self.value_column}')
+        plt.title(title)
         plt.legend()
         plt.show()
 
