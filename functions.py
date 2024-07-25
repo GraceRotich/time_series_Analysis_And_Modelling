@@ -1,7 +1,13 @@
 # importing relevant libraries
 import pandas as pd
 import numpy as np
-
+# Visualization libraries
+import matplotlib.pyplot as plt
+import seaborn as sns
+from statsmodels.tsa.seasonal import seasonal_decompose
+import matplotlib.pyplot as plt
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
 
 class Data_Loader:
     def __init__(self):
@@ -95,11 +101,87 @@ class DataPreparer:
     def modify_column_names(self):
         self.data.columns = [col.lower().replace(' ', '_') for col in self.data.columns]
         return self.data
-       
-class Analysis:
-    def __init__(self):
-        pass
+
+class TimeSeriesAnalyzer:
+    def __init__(self, dataframe, value_column):
+        self.df = dataframe
+        self.value_column = value_column
     
+    def plot_overall(self, xlim=None, ylim=None, figsize=(12, 4), title=None):
+        plt.figure(figsize=figsize)
+        sns.lineplot(x=self.df.index, y=self.df[self.value_column])
+        
+        if xlim:
+            plt.xlim(pd.Timestamp(xlim[0]), pd.Timestamp(xlim[1]))
+        if ylim:
+            plt.ylim(ylim)
+        
+        plt.xlabel('Date')
+        plt.ylabel(self.value_column)
+        plt.title(title)
+        plt.show()
+        
+    def plot_series(self, start=None, end=None, xlim=None, ylim=None, title= None):
+        plt.figure(figsize=(14, 7))
+        plt.plot(self.df[start:end].index, self.df[start:end][self.value_column], label=self.value_column)
+        if xlim:
+            plt.xlim(xlim)
+        if ylim:
+            plt.ylim(ylim)
+        plt.xlabel('Date')
+        plt.ylabel('Value')
+        plt.title(title)
+        plt.legend()
+        plt.show()
+
+    def plot_section(self, xlim, ylim=None, figsize=(12, 4), title=None):
+        self.plot_overall(xlim=xlim, ylim=ylim, figsize=figsize, title=title)
+    
+    def plot_resampled(self, rule= None, figsize=(12, 4), title= None):
+        resampled_df = self.df.resample(rule=rule).mean()
+        plt.figure(figsize=figsize)
+        sns.lineplot(x=resampled_df.index, y=resampled_df[self.value_column])
+        
+        plt.xlabel('Date')
+        plt.ylabel(self.value_column)
+        plt.title(title)
+        plt.show()
+
+    def plot_smoothing(self, window_sma=3, span_ewma=0.3, figsize=(12, 4), title='Smoothing Plot'):
+        sma = self.df[self.value_column].rolling(window=window_sma).mean()
+        ewma = self.df[self.value_column].ewm(span=span_ewma).mean()
+        
+        plt.figure(figsize=figsize)
+        sns.lineplot(x=self.df.index, y=self.df[self.value_column], label='Original')
+        sns.lineplot(x=self.df.index, y=sma, label=f'SMA (window={window_sma})')
+        sns.lineplot(x=self.df.index, y=ewma, label=f'EWMA (span={span_ewma})')
+        
+        plt.xlabel('Date')
+        plt.ylabel(self.value_column)
+        plt.title(title)
+        plt.legend()
+        plt.show()
+
+    def plot_seasonal_decomposition(self, df, column ,model='additive', period=12, figsize=(12, 8), title='Seasonal Decomposition'):
+        decomposition = seasonal_decompose(df[column], model=model, period=period)
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=figsize, sharex=True)
+        
+        ax1.plot(df.index, df[column], label='Original')
+        ax1.legend(loc='upper left')
+        ax1.set_title(title)
+        
+        ax2.plot(df.index, decomposition.trend, label='Trend')
+        ax2.legend(loc='upper left')
+        
+        ax3.plot(df.index, decomposition.seasonal, label='Seasonal')
+        ax3.legend(loc='upper left')
+        
+        ax4.plot(df.index, decomposition.resid, label='Residual')
+        ax4.legend(loc='upper left')
+        
+        plt.xlabel('Date')
+        plt.show()
+
 class Modeling:
     def __init__(self):
         pass
