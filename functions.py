@@ -4,10 +4,15 @@ import numpy as np
 # Visualization libraries
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import mean_squared_error
 from statsmodels.tsa.seasonal import seasonal_decompose
 import matplotlib.pyplot as plt
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+
 
 class Data_Loader:
     def __init__(self):
@@ -186,6 +191,78 @@ class Modeling:
     def __init__(self):
         pass
     
+    #Check for stationarity
+    def check_stationarity(self, data):
+        result = adfuller(data)
+        print("P value:", result[1])
+
+        if result[1]>0.05:
+            print("Is non stationary")
+        else:
+            print("Is stationary")
+            
+    def plotting(self, dataset):
+        fig, axs = plt.subplots(2, 1, figsize=(10, 8))
+    
+       # Plot ACF in the first subplot
+        plot_acf(dataset, lags=20, ax=axs[0])
+        axs[0].set_xlabel("Lags")
+        axs[0].set_ylabel("Autocorrelation")
+        axs[0].set_title("Autocorrelation Function (ACF)")
+    
+       # Plot PACF in the second subplot
+        plot_pacf(dataset, lags=20, ax=axs[1])
+        axs[1].set_xlabel("Lags")
+        axs[1].set_ylabel("Partial Autocorrelation")
+        axs[1].set_title("Partial Autocorrelation Function (PACF)")
+    
+        # Adjust layout to prevent overlap
+        plt.tight_layout()
+        plt.show()  
+        
+    def Spliting_Data(self,dataset, test_fraction):
+        # Calculate the number of test samples
+        test_size = int(len(dataset) * test_fraction)
+
+        # Split the data into training and testing sets
+        train = dataset[:-test_size]
+        test = dataset[-test_size:]
+
+        # Print the shapes of the resulting datasets
+        print("Train shape:", train.shape)
+        print("Test shape:", test.shape)
+        
+        return train, test
+    
+    def arima_modeling(self, train_data, test_data, param_morder):
+        arima_model = ARIMA(train_data, order=param_morder)
+        arima_result = arima_model.fit()
+
+        # Calculating and Printing AIC value
+        aic_value = round(arima_result.aic, 2)
+        print("\nAIC value:", aic_value)
+
+        # Making forecasts
+        steps = len(test_data)
+        price_forecast = arima_result.forecast(steps=steps)
+
+        # Calculate and Print RMSE
+        mse = round(mean_squared_error(test_data, price_forecast), 2)
+        rmse = round(np.sqrt(mse), 2)
+
+        print("\nMean Squared Error (MSE):", mse)
+        print("\nRoot Mean Squareroot Error (RMSE):", rmse)
+
+        plt.figure(figsize=(12, 6))
+        plt.plot(train_data, label='Train', color='blue')
+        plt.plot(test_data, label='Test', color='green')
+        plt.plot(test_data.index, price_forecast, label='Forecast', color='red')
+        plt.xlabel('Date')
+        plt.ylabel('Value')
+        plt.title('ARIMA Forecast vs Actual Data')
+        plt.legend()
+        plt.show()
+        
 class Evaluation:
     def __init__(self):
         pass
