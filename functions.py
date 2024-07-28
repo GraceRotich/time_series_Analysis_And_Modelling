@@ -11,6 +11,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
 
@@ -262,6 +263,30 @@ class Modeling:
         plt.title('ARIMA Forecast vs Actual Data')
         plt.legend()
         plt.show()
+        return arima_result,price_forecast
+    def sarima_model(self, order, seasonal_order, steps):
+        # Fit SARIMA model
+        model = SARIMAX(self.data, order=order, seasonal_order=seasonal_order)
+        sarima_model = model.fit(disp=False)
+        
+        # Forecast
+        forecast = sarima_model.get_forecast(steps=steps)
+        forecast_ci = forecast.conf_int()
+
+        # Plot the results
+        plt.figure(figsize=(12, 6))
+        plt.plot(self.data, label='Observed')
+        plt.plot(forecast.predicted_mean, label='Forecast')
+        plt.fill_between(forecast_ci.index,
+                         forecast_ci.iloc[:, 0],
+                         forecast_ci.iloc[:, 1], color='k', alpha=.2)
+        plt.xlabel('Date')
+        plt.ylabel('Value')
+        plt.title('SARIMA Model Forecast')
+        plt.legend()
+        plt.show()
+
+        return sarima_model, forecast       
         
 class Evaluation:
     def __init__(self):
