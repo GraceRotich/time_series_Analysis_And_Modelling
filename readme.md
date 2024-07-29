@@ -12,13 +12,11 @@ PrimeNest Investments faces challenges in accurately forecasting real estate pri
 ## Proposed Solution
 To address the challenges faced by PrimeNest Investments, the project proposes implementing robust data cleaning methods, such as interpolation or imputation techniques, to address missing values in the dataset. Additionally, the project suggests using SARIMA (Seasonal Autoregressive Integrated Moving Average) models to capture seasonal patterns and trends in the time series data. These approaches aim to enhance the accuracy of forecasting real estate prices and provide valuable insights for decision-making.
 
-![Shows the annaul trend of the time series data](Visuals\EDA_annual.png)
+![Shows the annual trend of the time series data](Visuals/EDA_annual.png)
 
+![The ARIMA model forecast](Visuals/Arima.png)
 
-![ The ARIMA model forcast](Visuals\Arima.png)
-
-
-![The SARIMA model Forecast]('Visuals\Sarima.png')
+![The SARIMA model forecast](Visuals/Sarima.png)
  
 
 ## Conclusion
