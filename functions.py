@@ -54,6 +54,7 @@ class DataCleaner:
         self.data = self.data.dropna()
         return self.data
     
+    
     def remove_outliers(self, column_name):
         Q1 = self.data[column_name].quantile(0.25)
         Q3 = self.data[column_name].quantile(0.75)
@@ -63,17 +64,6 @@ class DataCleaner:
         self.data = self.data[~((self.data[column_name] < lower_bound) | (self.data[column_name] > upper_bound))]
         return self.data
     
-    def fill_missing_values(self, strategy='mean'):
-        if strategy == 'mean':
-            self.data = self.data.fillna(self.data.mean())
-        elif strategy == 'median':
-            self.data = self.data.fillna(self.data.median())
-        elif strategy == 'mode':
-            self.data = self.data.fillna(self.data.mode().iloc[0])
-        return self.data
-
-
-
     
 class DataPreparer:
     def __init__(self, data):
@@ -88,6 +78,10 @@ class DataPreparer:
     def check_null_values(self):
         null_counts = self.data.isnull().sum()
         return null_counts
+
+    def check_duplicates(self):
+        duplicates =  self.data.duplicated()
+        return duplicates   
     
     def missing_values_percentage(self):
         total = self.data.isnull().sum().sort_values(ascending=False)
@@ -103,10 +97,6 @@ class DataPreparer:
         upper_bound = Q3 + 1.5 * IQR
         outliers = self.data[(self.data[column_name] < lower_bound) | (self.data[column_name] > upper_bound)]
         return outliers
-    
-    def modify_column_names(self):
-        self.data.columns = [col.lower().replace(' ', '_') for col in self.data.columns]
-        return self.data
 
 class TimeSeriesAnalyzer:
     def __init__(self, dataframe, value_column):
@@ -264,9 +254,10 @@ class Modeling:
         plt.legend()
         plt.show()
         return arima_result,price_forecast
-    def sarima_model(self, order, seasonal_order, steps):
+    
+    def sarima_model(self, data, order, seasonal_order, steps):
         # Fit SARIMA model
-        model = SARIMAX(self.data, order=order, seasonal_order=seasonal_order)
+        model = SARIMAX(data, order=order, seasonal_order=seasonal_order)
         sarima_model = model.fit(disp=False)
         
         # Forecast
@@ -275,7 +266,7 @@ class Modeling:
 
         # Plot the results
         plt.figure(figsize=(12, 6))
-        plt.plot(self.data, label='Observed')
+        plt.plot(data, label='Observed')
         plt.plot(forecast.predicted_mean, label='Forecast')
         plt.fill_between(forecast_ci.index,
                          forecast_ci.iloc[:, 0],
@@ -288,8 +279,7 @@ class Modeling:
 
         return sarima_model, forecast       
         
-class Evaluation:
-    def __init__(self):
-        pass
+
+    
         
    
